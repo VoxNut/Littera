@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>OCR Demo</title>
+  </head>
+  <body>
+    <h1>Upload an Image for OCR</h1>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="file" name="image" accept="image/*" required />
+      <button type="submit">Upload</button>
+    </form>
+
+    {% if text %}
+    <h2>Recognized Text:</h2>
+    <pre>{{ text }}</pre>
+    {% endif %}
+  </body>
+</html>

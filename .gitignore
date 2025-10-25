@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtualenvs
+littera_env/
+env/
+venv/
+*.venv/
+
+# Django / local files
+db.sqlite3
+media/
+uploads/
+
+# Logs, coverage, test caches
+*.log
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Editor / OS
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+
+# Secrets/env
+.env
+*.env
