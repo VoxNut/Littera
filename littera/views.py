@@ -21,7 +21,7 @@ def _load_ocr_model():
     global _model
     if _model is None:
         model_path = getattr(settings, 'OCR_MODEL_PATH', os.path.join(
-            settings.BASE_DIR, 'models', 'crnn_ocr_ctc_colab.h5'))
+            settings.BASE_DIR, 'models', 'crnn_ocr_ctc_colab_500k.h5'))
         _model = keras.models.load_model(model_path, compile=False)
     return _model
 
