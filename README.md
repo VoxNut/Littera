@@ -1,2 +1,2 @@
 # Littera
-A neat site for characters recognition
+A neat site for text recognition
