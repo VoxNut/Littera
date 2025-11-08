@@ -11,16 +11,11 @@
       <button type="submit">Recognize</button>
     </form>
 
-    {% if image_url %}
-    <h3>Preview</h3>
-    <img
-      src="{{ image_url }}"
-      style="max-width: 480px; border: 1px solid #ddd"
-    />
-    {% endif %} {% if text %}
+    {% if text %}
     <h2>Result</h2>
     <pre style="white-space: pre-wrap">{{ text }}</pre>
-    {% endif %} {% if error %}
+    {% endif %} 
+    {% if error %}
     <p style="color: red">{{ error }}</p>
     {% endif %}
   </body>
