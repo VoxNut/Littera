@@ -11,7 +11,6 @@ from tensorflow import keras
 
 _model = None
 
-# Model supports uppercase + lowercase + digits
 IMG_HEIGHT, IMG_WIDTH = 32, 128
 CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 ID_TO_CHAR = {i: c for i, c in enumerate(CHARSET)}
@@ -21,8 +20,44 @@ def _load_ocr_model():
     global _model
     if _model is None:
         model_path = getattr(settings, 'OCR_MODEL_PATH', os.path.join(
-            settings.BASE_DIR, 'models', 'crnn_ocr_ctc_colab_500k.h5'))
-        _model = keras.models.load_model(model_path, compile=False)
+            settings.BASE_DIR, 'models', 'crnn_ocr_ctc_1m_checkpoint.h5'))
+        
+        # Định nghĩa ctc_loss_layer để load checkpoint
+        def ctc_loss_layer(args):
+            y_true, y_pred, in_len, lab_len = args
+            return keras.backend.ctc_batch_cost(y_true, y_pred, in_len, lab_len)
+        
+        # Load model với custom_objects
+        _model = keras.models.load_model(
+            model_path, 
+            custom_objects={'ctc_loss_layer': ctc_loss_layer},
+            compile=False
+        )
+        
+        # Nếu model có nhiều inputs (train_model), extract base_model
+        if len(_model.inputs) > 1:
+            # Tìm input 'image'
+            image_input = None
+            for inp in _model.inputs:
+                if 'image' in inp.name:
+                    image_input = inp
+                    break
+            
+            # Tìm Dense layer cuối (output của base_model)
+            base_output = None
+            for layer in reversed(_model.layers):
+                if isinstance(layer, keras.layers.Dense):
+                    try:
+                        shape = layer.output.shape
+                        if shape[-1] == len(CHARSET) + 1:  # 63 = 62 chars + blank
+                            base_output = layer.output
+                            break
+                    except:
+                        continue
+            
+            if base_output is not None and image_input is not None:
+                _model = keras.Model(inputs=image_input, outputs=base_output)
+    
     return _model
 
 
