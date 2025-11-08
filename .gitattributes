@@ -1,1 +1,2 @@
 models/crnn_ocr_ctc_1m_checkpoint.h5 filter=lfs diff=lfs merge=lfs -text
+frozen_east_text_detection.pb filter=lfs diff=lfs merge=lfs -text
