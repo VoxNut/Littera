@@ -11,9 +11,9 @@ from tensorflow import keras
 
 _model = None
 
-# Khớp với notebook: ảnh HxW = 32x128, grayscale, charset lowercase + digits
+# Model supports uppercase + lowercase + digits
 IMG_HEIGHT, IMG_WIDTH = 32, 128
-CHARSET = "abcdefghijklmnopqrstuvwxyz0123456789"
+CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 ID_TO_CHAR = {i: c for i, c in enumerate(CHARSET)}
 
 
