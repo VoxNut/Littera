@@ -25,7 +25,7 @@ CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 ID_TO_CHAR = {i: c for i, c in enumerate(CHARSET)}
 
 BASE_DIR = Path(__file__).resolve().parent
-MODEL_PATH = BASE_DIR / 'models' / 'crnn_ocr_ctc_1m_checkpoint.h5'
+MODEL_PATH = BASE_DIR / 'models' / 'crnn_ocr_ctc_1m.h5'
 
 
 # ============================================================
