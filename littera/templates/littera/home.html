@@ -6,7 +6,6 @@
     <title>Littera</title>
     <meta name="description" content="Littera: nhận diện chữ cái từ hình ảnh. Tải ảnh lên, lấy ký tự và phân tích nhanh chóng bằng OCR." />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-</head>
     <style>
         /* ===== CSS Variables ===== */
         :root {
@@ -208,13 +207,14 @@
             }
         }
     </style>
+</head>
 <body>
     <div class="page-container">
         <header>
             <h1><i class="fa-solid fa-camera"></i> Littera</h1>
             <nav class="nav-actions">
-                <a href="home.html"><i class="fa-solid fa-house"></i> Home</a>
-                <a href="ocr.html"><i class="fa-solid fa-list"></i> Features</a>
+                <a href="#"><i class="fa-solid fa-house"></i> Home</a>
+                <a href="{% url 'ocr' %}"><i class="fa-solid fa-list"></i> Features</a>
                 <a href="#"><i class="fa-solid fa-flask"></i> Demo</a>
                 <a href="#"><i class="fa-solid fa-circle-info"></i> About us</a>
 
@@ -247,7 +247,7 @@
         </section>
 
         <section class="section link-section">
-            <p>Khám phá thêm về cách hoạt động của Littera tại trang <a href="ocr.html">Tính năng</a>.</p>
+            <p>Khám phá thêm về cách hoạt động của Littera tại trang <a href="{% url 'ocr' %}">Tính năng</a>.</p>
         </section>
 
         <footer>
@@ -262,6 +262,10 @@
         const savedTheme = localStorage.getItem('littera_theme');
         if(savedTheme) {
             document.documentElement.setAttribute('data-theme', savedTheme);
+            // Update button text on page load
+            if(savedTheme === 'dark') {
+                toggleBtn.innerHTML = 'Light mode <i class="fa-solid fa-sun"></i>';
+            }
         }
 
         toggleBtn.addEventListener('click', () => {

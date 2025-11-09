@@ -438,3 +438,6 @@ def ocr_view(request):
     else:
         form = OCRForm()
     return render(request, 'littera/ocr.html', {'form': form, 'detect_words': True})
+
+def home_view(request):
+    return render(request, 'littera/home.html')
