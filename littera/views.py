@@ -353,6 +353,11 @@ def _group_words_into_lines(word_boxes):
     return lines
 
 
+def home_view(request):
+    """Render site home page"""
+    return render(request, 'littera/home.html')
+
+
 def ocr_view(request):
     if request.method == 'POST':
         form = OCRForm(request.POST, request.FILES)
