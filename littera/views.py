@@ -15,7 +15,7 @@ _model = None
 
 IMG_HEIGHT, IMG_WIDTH = 32, 128
 # Original CHARSET without space (model was trained on this)
-CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 ID_TO_CHAR = {i: c for i, c in enumerate(CHARSET)}
 
 
