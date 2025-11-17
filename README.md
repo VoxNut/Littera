@@ -20,7 +20,7 @@ The system can recognize multilingual text, translate it automatically, and oper
 ## 🔑 Key Features
 
 ### 📝 Text Recognition
-- Recognizes **English text** across multiple fonts: uppercase, lowercase, handwritten, stylized fonts  
+- Recognizes **English text** across multiple fonts: uppercase, lowercase, stylized fonts  
 - Supports **image input** and **real-time camera input**
 
 ### 🔁 Automatic Translation
