@@ -29,10 +29,10 @@ else:
 # Configuration
 print("\n=== Configuration ===")
 IMG_HEIGHT, IMG_WIDTH = 32, 128
-BATCH_SIZE = 64
+BATCH_SIZE = 32  # Reduced from 64 to 32 to fit in GPU memory
 TIMESTEPS = 31
 EPOCHS = 20
-NUM_SAMPLES = 1_000_000
+NUM_SAMPLES = None
 
 # Setup paths - WSL can access Windows drives via /mnt/
 BASE_DIR = Path("/mnt/d/My WorkSpace/Littera")
@@ -56,7 +56,7 @@ os.environ['HF_DATASETS_CACHE'] = str(CACHE_DIR / 'datasets')
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 # Character set - includes uppercase, lowercase, and digits
-charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 char_to_id = {c: i for i, c in enumerate(charset)}
 num_classes = len(charset)
 
@@ -102,8 +102,12 @@ def gen(examples):
 
 # Load dataset
 print("\n=== Loading Dataset ===")
-print(f"Loading {NUM_SAMPLES:,} samples from MJSynth dataset...")
-ds = load_dataset("priyank-m/MJSynth_text_recognition", split=f"train[:{NUM_SAMPLES}]")
+if NUM_SAMPLES is None:
+    print("Loading FULL MJSynth dataset...")
+    ds = load_dataset("priyank-m/MJSynth_text_recognition", split="train")
+else:
+    print(f"Loading {NUM_SAMPLES:,} samples from MJSynth dataset...")
+    ds = load_dataset("priyank-m/MJSynth_text_recognition", split=f"train[:{NUM_SAMPLES}]")
 print(f"✓ Loaded {len(ds):,} samples successfully!")
 
 # Split train/validation
@@ -181,63 +185,11 @@ def build_crnn(num_classes):
 
 print("\n=== Building Model ===")
 
-# Check if checkpoint exists
-checkpoint_path = MODEL_SAVE_DIR / "crnn_ocr_ctc_1m_checkpoint.h5"
-resume_training = checkpoint_path.exists()
+# Build fresh model (don't load from checkpoint)
+checkpoint_path = MODEL_SAVE_DIR / "crnn_ocr_ctc_full_checkpoint.h5"
 
-if resume_training:
-    print(f"✓ Found existing checkpoint: {checkpoint_path}")
-    print("  Loading checkpoint to resume training...")
-    
-    # Define ctc_loss_layer for loading
-    def ctc_loss_layer(args):
-        y_true, y_pred, in_len, lab_len = args
-        return keras.backend.ctc_batch_cost(y_true, y_pred, in_len, lab_len)
-    
-    # Load checkpoint
-    loaded_model = keras.models.load_model(
-        str(checkpoint_path),
-        custom_objects={'ctc_loss_layer': ctc_loss_layer},
-        compile=False
-    )
-    
-    # Check if it's base_model or train_model
-    if len(loaded_model.inputs) == 1:
-        base_model = loaded_model
-        print("  ✓ Checkpoint is base_model")
-    else:
-        print("  ✓ Extracting base_model from train_model...")
-        
-        # Find image input
-        image_input = None
-        for inp in loaded_model.inputs:
-            if 'image' in inp.name:
-                image_input = inp
-                break
-        
-        # Find Dense output layer
-        base_output = None
-        for layer in reversed(loaded_model.layers):
-            if isinstance(layer, keras.layers.Dense):
-                try:
-                    shape = layer.output.shape
-                    if shape[-1] == (num_classes + 1):
-                        base_output = layer.output
-                        print(f"    Found Dense layer: {layer.name} with shape {shape}")
-                        break
-                except:
-                    continue
-        
-        if base_output is None:
-            raise ValueError("Could not find Dense output layer in checkpoint!")
-        
-        base_model = keras.Model(inputs=image_input, outputs=base_output)
-        print("  ✓ Extracted base_model successfully")
-    
-    print(f"  ✓ Model loaded from checkpoint (resuming from epoch ~9)")
-else:
-    print("  No checkpoint found - training from scratch")
-    base_model = build_crnn(num_classes)
+print("  Building new model from scratch...")
+base_model = build_crnn(num_classes)
 
 print(f"✓ Base model ready")
 print(f"  Input shape: {base_model.input.shape}")
@@ -265,16 +217,12 @@ train_model = keras.Model(
 )
 
 train_model.compile(
-    optimizer=keras.optimizers.Adam(5e-4 if resume_training else 1e-3),  # Lower LR for resume
+    optimizer=keras.optimizers.Adam(1e-3),
     loss=lambda y_true, y_pred: y_pred
 )
 
-if resume_training:
-    print("✓ Training model built with CTC loss (RESUME MODE)")
-    print("  Using lower learning rate: 5e-4")
-else:
-    print("✓ Training model built with CTC loss (FRESH START)")
-    print("  Using initial learning rate: 1e-3")
+print("✓ Training model built with CTC loss")
+print("  Using learning rate: 1e-3")
 
 # Pack batches
 def pack_batch(images, labels_batch, label_lens):
@@ -295,7 +243,7 @@ train_data = train_ds.map(pack_batch)
 val_data = val_ds.map(pack_batch)
 
 # Setup callbacks
-final_model_path = MODEL_SAVE_DIR / "crnn_ocr_ctc_1m.h5"
+final_model_path = MODEL_SAVE_DIR / "crnn_ocr_ctc_full.h5"
 
 callbacks = [
     keras.callbacks.ModelCheckpoint(
@@ -307,7 +255,7 @@ callbacks = [
     ),
     keras.callbacks.EarlyStopping(
         monitor='val_loss',
-        patience=10,  # Increased from 5 to 10 - allow more epochs without improvement
+        patience=10,  
         restore_best_weights=True,
         verbose=1
     ),
@@ -322,19 +270,13 @@ callbacks = [
 
 # Start training
 print("\n" + "="*60) 
-if resume_training:
-    print("RESUMING TRAINING FROM CHECKPOINT")
-    print(f"Current progress: ~Epoch 9/20")
-else:
-    print("STARTING TRAINING FROM SCRATCH")
+print("STARTING TRAINING FROM SCRATCH")
 print("="*60)
 print(f"Total epochs: {EPOCHS}")
 print(f"Batch size: {BATCH_SIZE}")
 print(f"Training samples: {len(train_raw):,}")
 print(f"Validation samples: {len(val_raw):,}")
 print(f"Checkpoint: {checkpoint_path}")
-if resume_training:
-    print(f"Status: Continuing from previous training")
 print("="*60 + "\n")
 
 history = train_model.fit(

@@ -11,7 +11,7 @@ os.environ['HF_DATASETS_CACHE'] = str(CACHE_DIR / 'datasets')
 
 # Now import datasets and other libraries AFTER setting environment variables
 import time
-import numpy as np
+import numpy as np 
 from PIL import Image
 from tensorflow import keras
 from tensorflow.keras.models import Model
@@ -21,11 +21,11 @@ K = keras.backend
 
 # Configuration matching your model
 IMG_HEIGHT, IMG_WIDTH = 32, 128
-CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 ID_TO_CHAR = {i: c for i, c in enumerate(CHARSET)}
 
 BASE_DIR = Path(__file__).resolve().parent
-MODEL_PATH = BASE_DIR / 'models' / 'crnn_ocr_ctc_1m.h5'
+MODEL_PATH = BASE_DIR / 'models' / 'crnn_ocr_ctc_full.h5'
 
 
 # ============================================================
@@ -33,8 +33,8 @@ MODEL_PATH = BASE_DIR / 'models' / 'crnn_ocr_ctc_1m.h5'
 # ============================================================
 def ctc_loss_layer(args):
     """Custom CTC loss function"""
-    y_pred, labels, input_length, label_length = args
-    return K.ctc_batch_cost(labels, y_pred, input_length, label_length)
+    y_true, y_pred, in_len, lab_len = args
+    return K.ctc_batch_cost(y_true, y_pred, in_len, lab_len)
 
 
 def load_inference_model(model_path):
