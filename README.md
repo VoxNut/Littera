@@ -51,6 +51,12 @@ The system can recognize multilingual text, translate it automatically, and oper
 
 ---
 
+## Case Statistics
+![Example from dataset](/imgs/caseChart.png)
+
+
+---
+
 ## 🛠️ Technology Stack
 
 ### Tools

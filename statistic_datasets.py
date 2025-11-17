@@ -131,6 +131,7 @@ def printStatistics(result: Dict):
     print("=" * 70)
     
     stats = result['stats']
+    print_ascii_chart(stats, title=f"Case Distribution: {result['total']}")
     if 'all_upper' in stats:
         upper_percent = stats['all_upper']['percent']
         if upper_percent > 70:
@@ -148,6 +149,36 @@ def printStatistics(result: Dict):
     
     print("=" * 70)
 
+
+def print_ascii_chart(stats, title="Case Distribution"):
+    print("\n" + "=" * 70)
+    print(title)
+    print("=" * 70)
+
+    # Extract raw data
+    items = [(k, v["count"]) for k, v in stats.items()]
+
+    # Sort by count descending
+    items = sorted(items, key=lambda x: x[1], reverse=True)
+
+    max_label_len = max(len(k) for k, _ in items)
+    max_count = max(v for _, v in items)
+
+    # Width of the bar in characters
+    bar_max_width = 50
+
+    for key, count in items:
+        # Create bar length based on ratio
+        bar_len = int((count / max_count) * bar_max_width)
+        bar = "█" * bar_len
+
+        # Format label (capitalize, remove _)
+        label = key.replace("_", " ").capitalize()
+
+        # Print line
+        print(f"{label:<{max_label_len}} | {bar} {count}")
+
+    print("=" * 70)
 
 def testClassifier():
     """Test the classifyLabel function"""
