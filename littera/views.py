@@ -446,3 +446,6 @@ def ocr_view(request):
 
 def home_view(request):
     return render(request, 'littera/home.html')
+
+def login_view(request):
+    return render(request, 'littera/login.html')

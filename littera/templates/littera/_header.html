@@ -9,5 +9,14 @@
     <button id="theme-toggle">
       Dark mode <i class="fa-solid fa-moon"></i>
     </button>
+        <section class="section auth-section" style="text-align:center; margin-bottom: 40px;">
+        {% if user.is_authenticated %}
+            <p>Xin chào, <strong>{{ user.username }}</strong>!</p>
+            <a href="{% url 'logout' %}" class="btn">Đăng xuất</a>
+        {% else %}
+            <a href="{% url 'login' %}" class="btn">Đăng nhập</a>
+            <a href="{% url 'signup' %}" class="btn">Đăng ký</a>
+        {% endif %}
+    </section>
   </nav>
 </header>
