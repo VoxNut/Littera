@@ -1,0 +1,21 @@
+{% extends 'littera/base.html' %}
+
+{% block title %}Đăng ký | Littera{% endblock %}
+
+{% block content %}
+<section class="section">
+    <h2>Đăng ký</h2>
+
+    <form method="POST" class="form">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <button type="submit" class="btn">Tạo tài khoản</button>
+    </form>
+
+    <p>
+        Đã có tài khoản? 
+        <a href="{% url 'login' %}">Đăng nhập</a>
+    </p>
+</section>
+{% endblock %}

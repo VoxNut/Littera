@@ -3,31 +3,47 @@
 {% block title %}Littera{% endblock %}
 
 {% block content %}
-    <section class="section  hero-section">
+
+    <section class="section hero-section">
         <h2>Nhận diện chữ cái dễ dàng với Littera</h2>
         <p>Littera giúp bạn tải ảnh lên và trích xuất chữ cái một cách chính xác và nhanh chóng.</p>
-        <a href="{% url 'ocr' %}" class="hero-btn">Dùng thử ngay</a>
+
+        {% if user.is_authenticated %}
+            <a href="{% url 'ocr' %}" class="hero-btn">Dùng thử ngay</a>
+        {% else %}
+            <button class="hero-btn" disabled style="opacity:0.5; cursor:not-allowed;">
+                Đăng nhập để dùng thử
+            </button>
+        {% endif %}
     </section>
 
     <section class="section feature-section">
         <h2>Tính năng nổi bật</h2>
+
+        {% if user.is_authenticated %}
         <div class="features-container">
             <div class="feature-card">
                 <h3><i class="fa-solid fa-image"></i> Xử lý ảnh real-time</h3>
-                <p>Tải ảnh lên và nhận diện các ký tự trong hình ảnh.</p>
+                <p>Tải ảnh lên và nhận diện ký tự.</p>
             </div>
+
             <div class="feature-card">
                 <h3><i class="fa-solid fa-language"></i> Dịch (Anh - Việt)</h3>
-                <p>Hỗ trợ dịch câu đã nhận diện ra từ tiếng Anh sang tiếng Việt.</p>
+                <p>Dịch câu đã nhận diện.</p>
             </div>
+
             <div class="feature-card">
                 <h3><i class="fa-solid fa-camera-retro"></i> Nhận diện bằng webcam</h3>
-                <p>Xử lý khi có hình ảnh có ký tự xuất hiện ở trên webcam</p>
+                <p>Xử lý ký tự qua webcam.</p>
             </div>
         </div>
+
+        {% else %}
+        <p style="text-align:center; margin-top:20px;">
+            ⚠ Bạn cần đăng nhập để xem danh sách tính năng.
+        </p>
+        {% endif %}
+
     </section>
 
-    <section class="section link-section">
-        <p>Khám phá thêm về cách hoạt động của Littera tại trang <a href="{% url 'ocr' %}">Tính năng</a>.</p>
-    </section>
 {% endblock %}
