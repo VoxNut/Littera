@@ -57,6 +57,14 @@ The system can recognize multilingual text, translate it automatically, and oper
 
 ---
 
+---
+
+## Training History
+![Training History](/models/training_history.png)
+
+
+---
+
 ## 🛠️ Technology Stack
 
 ### Tools
