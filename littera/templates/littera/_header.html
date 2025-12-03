@@ -1,22 +1,28 @@
 <header>
   <h1><i class="fa-solid fa-camera"></i> Littera</h1>
   <nav class="nav-actions">
-    <a href="{% url 'home' %}"><i class="fa-solid fa-house"></i> Home</a>
-    <a href="{% url 'ocr' %}"><i class="fa-solid fa-list"></i> Features</a>
-    <a href="#"><i class="fa-solid fa-flask"></i> Demo</a>
-    <a href="#"><i class="fa-solid fa-circle-info"></i> About us</a>
+    <div class="left-header">
+      <a href="{% url 'home' %}"><i class="fa-solid fa-house"></i> Home</a>
+      <a href="{% url 'ocr' %}"><i class="fa-solid fa-list"></i> Features</a>
+      <a href="#"><i class="fa-solid fa-flask"></i> Demo</a>
+      <a href="#"><i class="fa-solid fa-circle-info"></i> About us</a>
+      <button id="theme-toggle">
+        Dark mode <i class="fa-solid fa-moon"></i>
+      </button>
+    </div>
 
-    <button id="theme-toggle">
-      Dark mode <i class="fa-solid fa-moon"></i>
-    </button>
-        <section class="section auth-section" style="text-align:center; margin-bottom: 40px;">
+    <div class="right-header">
+      <section
+        class="section auth-section"
+      >
         {% if user.is_authenticated %}
-            <p>Xin chào, <strong>{{ user.username }}</strong>!</p>
-            <a href="{% url 'logout' %}" class="btn">Đăng xuất</a>
+        <p>Xin chào, <strong>{{ user.username }}</strong>!</p>
+        <a href="{% url 'logout' %}" class="btn">Đăng xuất</a>
         {% else %}
-            <a href="{% url 'login' %}" class="btn">Đăng nhập</a>
-            <a href="{% url 'signup' %}" class="btn">Đăng ký</a>
+        <a href="{% url 'login' %}" class="btn">Đăng nhập</a>
+        <a href="{% url 'signup' %}" class="btn">Đăng ký</a>
         {% endif %}
-    </section>
+      </section>
+    </div>
   </nav>
 </header>
