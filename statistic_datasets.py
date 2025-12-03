@@ -3,9 +3,10 @@ Analyze case distribution in MJSynth dataset
 """
 import os
 from pathlib import Path
+import matplotlib.pyplot as plt
 
-
-CACHE_DIR = Path("D:/huggingface_cache")
+CACHE_DIR = Path("/home/hieu/.cache/huggingface/datasets/c7d0c699152e5a310ad6b793bba5e302f28699ba")
+# CACHE_DIR = Path("D:/huggingface_cache")
 CACHE_DIR.mkdir(exist_ok=True)
 os.environ['HF_HOME'] = str(CACHE_DIR)
 os.environ['HF_DATASETS_CACHE'] = str(CACHE_DIR / 'datasets')
@@ -96,6 +97,68 @@ def computeStatistics(ds, max_samples=None) -> Dict:
         "examples": dict(examples)
     }
 
+# flow chart to statistics case distribution as image
+def export_case_distribution_chart(stats: Dict, output_path="./imgs/case_distribution.png"):
+    """
+    Export a bar chart with single-row annotations: 'count (percent%)'
+    Matching color style based on the reference image.
+    """
+    from pathlib import Path
+    import matplotlib.pyplot as plt
+
+    # Extract data
+    labels = list(stats.keys())
+    counts = [stats[k]["count"] for k in labels]
+    percents = [stats[k]["percent"] for k in labels]
+
+    display_labels = [lbl.replace('_', ' ').title() for lbl in labels]
+
+    # Color palette matching the user's reference image
+    COLORS = [
+        "#2C4875",  # Dark navy
+        "#3A75A6",  # Blue
+        "#4BB5C1",  # Teal
+        "#3A7FA4",  # Cyan-blue tone
+        "#A8E0DA",  # Light aqua
+    ]
+
+    # If more bars than colors → repeat palette
+    colors = [COLORS[i % len(COLORS)] for i in range(len(labels))]
+
+    # Create plot
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    bars = ax.bar(range(len(labels)), counts, color=colors, edgecolor='black', linewidth=0.7)
+
+    ax.set_xticks(range(len(labels)))
+    ax.set_xticklabels(display_labels, ha='center', fontsize=10)
+    ax.set_ylabel("Number of Samples")
+    ax.set_title("Case Distribution in MJSynth Dataset", fontsize=14, pad=12)
+
+    # Annotation
+    max_count = max(counts) if counts else 1
+    for rect, cnt, pct in zip(bars, counts, percents):
+        x = rect.get_x() + rect.get_width() / 2
+        y = rect.get_height()
+        ax.text(x, y + max_count * 0.03, f"{cnt:,} ({pct:.1f}%)",
+                ha="center", va="bottom", fontsize=9)
+
+    # Clean style
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.yaxis.grid(True, linestyle='--', alpha=0.55)
+    ax.set_axisbelow(True)
+
+    # Save
+    out_dir = Path(output_path).parent
+    out_dir.mkdir(parents=True, exist_ok=True)
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=200, bbox_inches='tight', facecolor='white')
+    plt.close(fig)
+
+    print(f"📁 Chart saved to: {output_path}")
+
+
 
 def printStatistics(result: Dict):
     """Pretty print statistics"""
@@ -131,6 +194,7 @@ def printStatistics(result: Dict):
     print("=" * 70)
     
     stats = result['stats']
+    export_case_distribution_chart(result_quick["stats"])
     if 'all_upper' in stats:
         upper_percent = stats['all_upper']['percent']
         if upper_percent > 70:
@@ -147,7 +211,6 @@ def printStatistics(result: Dict):
             print("✓  Dataset appears relatively balanced")
     
     print("=" * 70)
-
 
 def testClassifier():
     """Test the classifyLabel function"""
@@ -234,3 +297,5 @@ if __name__ == '__main__':
     
     # Step 4: Summary
     print("\n[3/3] Analysis complete!")
+
+
