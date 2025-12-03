@@ -3,7 +3,7 @@
 **Littera** is an advanced OCR (Optical Character Recognition) system developed using the CRNN architecture. It combines the power of **Convolutional Neural Networks (CNN)** for visual feature extraction and **Recurrent Neural Networks (RNN)** for sequential character prediction.  
 The system can recognize multilingual text, translate it automatically, and operate in real-time from both images and live camera feeds.
 
-![Example from dataset](/imgs/case_distribution.png)
+![Example from dataset](/imgs/resultExample.png)
 ---
 ## 🧑‍💻 Development Team
 
@@ -52,7 +52,7 @@ The system can recognize multilingual text, translate it automatically, and oper
 ---
 
 ## Case Statistics
-![Example from dataset](/imgs/caseChart.png)
+![Example from dataset](/imgs/case_distribution.png)
 
 
 ---
