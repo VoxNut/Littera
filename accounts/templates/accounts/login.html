@@ -1,29 +1,41 @@
-{% extends 'littera/base.html' %}
+{% extends 'littera/base.html' %} 
+{% load static %}
 
-{% block title %}Đăng nhập | Littera{% endblock %}
+{% block title %}Đăng nhập | Littera{% endblock %} 
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'accounts/css/login.css' %}">
+{% endblock %}
 
 {% block content %}
-<section class="section">
-    <h2>Đăng nhập</h2>
 
-    <form method="POST" class="form">
-        {% csrf_token %}
-        
-        {% if messages %}
-            {% for msg in messages %}
-                <p class="error">{{ msg }}</p>
-            {% endfor %}
-        {% endif %}
+<section class="login-section">
+  <h2>Đăng nhập</h2>
 
-        <input type="text" name="username" placeholder="Tên đăng nhập" class="input">
-        <input type="password" name="password" placeholder="Mật khẩu" class="input">
+  <form method="POST" class="form">
+    {% csrf_token %} {% if messages %} {% for msg in messages %}
+    <p class="error">{{ msg }}</p>
+    {% endfor %} {% endif %}
 
-        <button type="submit" class="btn">Đăng nhập</button>
-    </form>
+    <input
+      type="text"
+      name="username"
+      placeholder="Tên đăng nhập"
+      class="input"
+    />
+    <input
+      type="password"
+      name="password"
+      placeholder="Mật khẩu"
+      class="input"
+    />
 
-    <p>
-        Chưa có tài khoản?
-        <a href="{% url 'signup' %}">Đăng ký ngay</a>
-    </p>
+    <button type="submit" class="btn">Đăng nhập</button>
+  </form>
+
+  <p>
+    Chưa có tài khoản?
+    <a href="{% url 'signup' %}">Đăng ký ngay</a>
+  </p>
 </section>
 {% endblock %}
