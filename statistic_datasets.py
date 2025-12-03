@@ -5,8 +5,8 @@ import os
 from pathlib import Path
 import matplotlib.pyplot as plt
 
-# CACHE_DIR = Path("/home/hieu/.cache/huggingface/datasets/c7d0c699152e5a310ad6b793bba5e302f28699ba")
-CACHE_DIR = Path("D:/huggingface_cache")
+CACHE_DIR = Path("/home/hieu/.cache/huggingface/datasets/c7d0c699152e5a310ad6b793bba5e302f28699ba")
+# CACHE_DIR = Path("D:/huggingface_cache")
 CACHE_DIR.mkdir(exist_ok=True)
 os.environ['HF_HOME'] = str(CACHE_DIR)
 os.environ['HF_DATASETS_CACHE'] = str(CACHE_DIR / 'datasets')
@@ -101,43 +101,55 @@ def computeStatistics(ds, max_samples=None) -> Dict:
 def export_case_distribution_chart(stats: Dict, output_path="./imgs/case_distribution.png"):
     """
     Export a bar chart with single-row annotations: 'count (percent%)'
+    Matching color style based on the reference image.
     """
     from pathlib import Path
     import matplotlib.pyplot as plt
 
+    # Extract data
     labels = list(stats.keys())
     counts = [stats[k]["count"] for k in labels]
     percents = [stats[k]["percent"] for k in labels]
 
-    display_labels = [(lbl.replace('_', ' ').title() if lbl else '') for lbl in labels]
+    display_labels = [lbl.replace('_', ' ').title() for lbl in labels]
 
-    plt.style.use('ggplot')
+    # Color palette matching the user's reference image
+    COLORS = [
+        "#2C4875",  # Dark navy
+        "#3A75A6",  # Blue
+        "#4BB5C1",  # Teal
+        "#3A7FA4",  # Cyan-blue tone
+        "#A8E0DA",  # Light aqua
+    ]
+
+    # If more bars than colors → repeat palette
+    colors = [COLORS[i % len(COLORS)] for i in range(len(labels))]
+
+    # Create plot
     fig, ax = plt.subplots(figsize=(10, 6))
-    cmap = plt.get_cmap('tab10')
-    colors = [cmap(i % 10) for i in range(len(labels))]
 
     bars = ax.bar(range(len(labels)), counts, color=colors, edgecolor='black', linewidth=0.7)
 
     ax.set_xticks(range(len(labels)))
-    ax.set_xticklabels(display_labels, ha='right', fontsize=10)
+    ax.set_xticklabels(display_labels, ha='center', fontsize=10)
     ax.set_ylabel("Number of Samples")
     ax.set_title("Case Distribution in MJSynth Dataset", fontsize=14, pad=12)
 
+    # Annotation
     max_count = max(counts) if counts else 1
-    # Annotate as single row: "count (percent%)"
     for rect, cnt, pct in zip(bars, counts, percents):
         x = rect.get_x() + rect.get_width() / 2
         y = rect.get_height()
-        ax.text(x, y + max_count * 0.03, f"{cnt:,} ({pct:.1f}%)", ha="center", va="bottom", fontsize=9)
+        ax.text(x, y + max_count * 0.03, f"{cnt:,} ({pct:.1f}%)",
+                ha="center", va="bottom", fontsize=9)
 
+    # Clean style
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    ax.spines['left'].set_linewidth(1.2)
-    ax.spines['bottom'].set_linewidth(1.0)
-
-    ax.yaxis.grid(True, linestyle='--', alpha=0.6)
+    ax.yaxis.grid(True, linestyle='--', alpha=0.55)
     ax.set_axisbelow(True)
 
+    # Save
     out_dir = Path(output_path).parent
     out_dir.mkdir(parents=True, exist_ok=True)
     fig.tight_layout()
