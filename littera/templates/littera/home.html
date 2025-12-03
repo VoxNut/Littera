@@ -1,0 +1,49 @@
+{% extends 'littera/base.html' %}
+
+{% block title %}Littera{% endblock %}
+
+{% block content %}
+
+    <section class="section hero-section">
+        <h2>Nhận diện chữ cái dễ dàng với Littera</h2>
+        <p>Littera giúp bạn tải ảnh lên và trích xuất chữ cái một cách chính xác và nhanh chóng.</p>
+
+        {% if user.is_authenticated %}
+            <a href="{% url 'ocr' %}" class="hero-btn">Dùng thử ngay</a>
+        {% else %}
+            <button class="hero-btn" disabled style="opacity:0.5; cursor:not-allowed;">
+                Đăng nhập để dùng thử
+            </button>
+        {% endif %}
+    </section>
+
+    <section class="section feature-section">
+        <h2>Tính năng nổi bật</h2>
+
+        {% if user.is_authenticated %}
+        <div class="features-container">
+            <div class="feature-card">
+                <h3><i class="fa-solid fa-image"></i> Xử lý ảnh real-time</h3>
+                <p>Tải ảnh lên và nhận diện ký tự.</p>
+            </div>
+
+            <div class="feature-card">
+                <h3><i class="fa-solid fa-language"></i> Dịch (Anh - Việt)</h3>
+                <p>Dịch câu đã nhận diện.</p>
+            </div>
+
+            <div class="feature-card">
+                <h3><i class="fa-solid fa-camera-retro"></i> Nhận diện bằng webcam</h3>
+                <p>Xử lý ký tự qua webcam.</p>
+            </div>
+        </div>
+
+        {% else %}
+        <p style="text-align:center; margin-top:20px;">
+            ⚠ Bạn cần đăng nhập để xem danh sách tính năng.
+        </p>
+        {% endif %}
+
+    </section>
+
+{% endblock %}

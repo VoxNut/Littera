@@ -5,6 +5,7 @@ __pycache__/
 
 # Virtualenvs
 littera_env/
+wsl_littera_env/
 env/
 venv/
 *.venv/

@@ -17,7 +17,7 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Đặt file .h5 vào thư mục models/
-OCR_MODEL_PATH = os.path.join(BASE_DIR, 'models', 'crnn_ocr_ctc_colab_500k.h5')
+OCR_MODEL_PATH = os.path.join(BASE_DIR, 'models', 'crnn_ocr_ctc_1m_checkpoint.h5')
 EAST_MODEL_PATH = os.path.join(
     BASE_DIR, 'models', 'frozen_east_text_detection.pb')
 
@@ -39,6 +39,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     # My Apps
     'littera',
+    'accounts',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -62,7 +63,7 @@ ROOT_URLCONF = 'littera_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "littera/templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

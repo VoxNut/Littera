@@ -1,27 +1,78 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>English OCR</title>
-  </head>
-  <body>
-    <h1>English OCR</h1>
-    <form method="post" enctype="multipart/form-data">
-      {% csrf_token %} {{ form.as_p }}
-      <button type="submit">Recognize</button>
-    </form>
+{% extends 'littera/base.html' %}
 
-    {% if image_url %}
-    <h3>Preview</h3>
-    <img
-      src="{{ image_url }}"
-      style="max-width: 480px; border: 1px solid #ddd"
-    />
-    {% endif %} {% if text %}
-    <h2>Result</h2>
-    <pre style="white-space: pre-wrap">{{ text }}</pre>
-    {% endif %} {% if error %}
-    <p style="color: red">{{ error }}</p>
+{% block title %}Nhận diện chữ - Littera{% endblock %}
+
+{% block content %}
+<div class="ocr-page">
+  <div class="ocr-header">
+    <h1><i class="fa-solid fa-image"></i> Nhận diện văn bản</h1>
+    <p>Tải ảnh lên và nhận diện văn bản một cách chính xác</p>
+  </div>
+
+  <div class="ocr-content">
+    <div class="upload-section">
+      <h2><i class="fa-solid fa-upload"></i> Tải ảnh lên</h2>
+      <form method="post" enctype="multipart/form-data" class="ocr-form">
+        {% csrf_token %}
+        
+        <div class="form-group">
+          <label for="{{ form.image.id_for_label }}"><i class="fa-solid fa-file-image"></i> Chọn hình ảnh</label>
+          {{ form.image }}
+          {% if form.image.errors %}
+            <div class="form-error">{{ form.image.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" name="detect_words" {% if detect_words %}checked{% endif %}>
+            <span><i class="fa-solid fa-spell-check"></i> Phát hiện nhiều từ (cho văn bản có khoảng trắng)</span>
+          </label>
+        </div>
+
+        <button type="submit" class="submit-btn">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Nhận diện ngay
+        </button>
+      </form>
+    </div>
+
+    {% if text %}
+    <div class="result-section">
+      <h2><i class="fa-solid fa-check-circle"></i> Kết quả</h2>
+      <div class="result-box">
+        <div class="result-header">
+          <span><i class="fa-solid fa-file-lines"></i> Văn bản nhận diện</span>
+          <button class="copy-btn" onclick="copyToClipboard()" title="Sao chép">
+            <i class="fa-solid fa-copy"></i>
+          </button>
+        </div>
+        <pre class="result-text" id="resultText">{{ text }}</pre>
+      </div>
+    </div>
     {% endif %}
-  </body>
-</html>
+
+    {% if error %}
+    <div class="error-section">
+      <i class="fa-solid fa-circle-exclamation"></i>
+      <strong>Lỗi:</strong> {{ error }}
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+function copyToClipboard() {
+  const text = document.getElementById('resultText').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+    btn.style.color = '#10b981';
+    setTimeout(() => {
+      btn.innerHTML = originalHTML;
+      btn.style.color = '';
+    }, 2000);
+  });
+}
+</script>
+{% endblock %}
