@@ -23,43 +23,52 @@ def _load_ocr_model():
     global _model
     if _model is None:
         model_path = getattr(settings, 'OCR_MODEL_PATH', os.path.join(
-            settings.BASE_DIR, 'models', 'crnn_ocr_ctc_1m_checkpoint.h5'))
+            settings.BASE_DIR, 'models', 'crnn_ocr_ctc_1m.h5'))
         
         # Định nghĩa ctc_loss_layer để load checkpoint
         def ctc_loss_layer(args):
             y_true, y_pred, in_len, lab_len = args
             return keras.backend.ctc_batch_cost(y_true, y_pred, in_len, lab_len)
         
-        # Load model với custom_objects
-        _model = keras.models.load_model(
+        # Load full model with custom objects
+        full_model = keras.models.load_model(
             model_path, 
             custom_objects={'ctc_loss_layer': ctc_loss_layer},
             compile=False
         )
         
-        # Nếu model có nhiều inputs (train_model), extract base_model
-        if len(_model.inputs) > 1:
-            # Tìm input 'image'
-            image_input = None
-            for inp in _model.inputs:
-                if 'image' in inp.name:
-                    image_input = inp
+        # If model has only 1 input, it's already an inference model
+        if len(full_model.inputs) == 1:
+            _model = full_model
+            return _model
+        
+        # Extract inference model (image input only)
+        # Get image input (first input)
+        image_input = full_model.inputs[0]
+        
+        # Find prediction output layer (the Dense layer before CTC loss)
+        prediction_output = None
+        
+        # Look for Dense layer with correct output size (53 = 52 chars + blank)
+        for layer in full_model.layers:
+            if isinstance(layer, keras.layers.Dense):
+                if hasattr(layer, 'units') and layer.units == len(CHARSET) + 1:
+                    prediction_output = layer.output
                     break
-            
-            # Tìm Dense layer cuối (output của base_model)
-            base_output = None
-            for layer in reversed(_model.layers):
-                if isinstance(layer, keras.layers.Dense):
-                    try:
-                        shape = layer.output.shape
-                        if shape[-1] == len(CHARSET) + 1:  # 63 = 62 chars + blank
-                            base_output = layer.output
-                            break
-                    except:
-                        continue
-            
-            if base_output is not None and image_input is not None:
-                _model = keras.Model(inputs=image_input, outputs=base_output)
+        
+        if prediction_output is None:
+            # Try to find by name
+            for layer in full_model.layers:
+                if 'dense' in layer.name.lower():
+                    prediction_output = layer.output
+                    break
+        
+        if prediction_output is None:
+            raise ValueError("Could not find prediction layer in model")
+        
+        # Create inference model
+        from tensorflow.keras.models import Model
+        _model = Model(inputs=image_input, outputs=prediction_output)
     
     return _model
 
@@ -99,7 +108,8 @@ def _ctc_decode(y_pred):
     seq = decoded[0].numpy()  # (B, Lmax), pad = -1
     texts = []
     for row in seq:
-        chars = [ID_TO_CHAR[i] for i in row if i != -1]
+        # Skip -1 (padding) and out-of-range indices
+        chars = [ID_TO_CHAR[i] for i in row if i != -1 and 0 <= i < len(CHARSET)]
         texts.append(''.join(chars))
     return texts
 

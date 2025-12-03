@@ -25,7 +25,7 @@ CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 ID_TO_CHAR = {i: c for i, c in enumerate(CHARSET)}
 
 BASE_DIR = Path(__file__).resolve().parent
-MODEL_PATH = BASE_DIR / 'models' / 'crnn_ocr_ctc_full.h5'
+MODEL_PATH = BASE_DIR / 'models' / 'crnn_ocr_ctc_1m_checkpoint.h5'
 
 
 # ============================================================
@@ -66,26 +66,28 @@ def load_inference_model(model_path):
         image_input = full_model.inputs[0]
         print(f"  Image input shape: {image_input.shape}")
         
-        # Find prediction output layer (before CTC loss)
+        # Find prediction output layer (the Dense layer before CTC loss)
         prediction_output = None
-        for layer in full_model.layers:
-            # Look for Dense layer with correct output size
-            if hasattr(layer, 'units') and layer.units == len(CHARSET) + 1:
-                prediction_output = layer.output
-                print(f"  Found prediction layer: {layer.name}")
-                break
         
-        if prediction_output is None:
-            # Alternative: find layer with correct output shape
-            for layer in reversed(full_model.layers):
-                if len(layer.output_shape) == 3 and layer.output_shape[-1] == len(CHARSET) + 1:
+        # Look for Dense layer with name 'dense' or 'dense_1'
+        for layer in full_model.layers:
+            if isinstance(layer, keras.layers.Dense):
+                if hasattr(layer, 'units') and layer.units == len(CHARSET) + 1:
                     prediction_output = layer.output
-                    print(f"  Found prediction layer: {layer.name}")
+                    print(f"  Found prediction layer: {layer.name} with {layer.units} units")
                     break
         
         if prediction_output is None:
-            print("  ⚠️  Could not find prediction layer, using first output")
-            prediction_output = full_model.outputs[0]
+            print("  ⚠️  Could not find Dense prediction layer")
+            # Try to find by name
+            for layer in full_model.layers:
+                if 'dense' in layer.name.lower():
+                    prediction_output = layer.output
+                    print(f"  Using layer by name: {layer.name}")
+                    break
+        
+        if prediction_output is None:
+            raise ValueError("Could not find prediction layer in model")
         
         # Create inference model
         inference_model = Model(inputs=image_input, outputs=prediction_output)
@@ -118,7 +120,8 @@ def ctc_decode(y_pred):
     seq = decoded[0].numpy()
     texts = []
     for row in seq:
-        chars = [ID_TO_CHAR[i] for i in row if i != -1]
+        # Skip -1 (padding) and out-of-range indices
+        chars = [ID_TO_CHAR[i] for i in row if i != -1 and 0 <= i < len(CHARSET)]
         texts.append(''.join(chars))
     return texts
 
