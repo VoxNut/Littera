@@ -1,0 +1,57 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Littera{% endblock %}</title>
+    <meta
+      name="description"
+      content="Littera: nhận diện chữ cái từ hình ảnh. Tải ảnh lên, lấy ký tự và phân tích nhanh chóng bằng OCR."
+    />
+    <link rel="stylesheet" href="{% static 'littera/styles.css' %}" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+
+        {% block extra_css %}{% endblock %}
+
+  </head>
+  <body>
+    <div class="page-container">
+      {% include 'littera/_header.html' %}
+      
+      {% block content %}{% endblock %}
+      
+      {% include 'littera/_footer.html' %}
+    </div>
+
+    <script>
+      const toggleBtn = document.getElementById("theme-toggle");
+      const savedTheme = localStorage.getItem("littera_theme");
+      if (savedTheme) {
+        document.documentElement.setAttribute("data-theme", savedTheme);
+        if (savedTheme === "dark" && toggleBtn) {
+          toggleBtn.innerHTML = 'Light mode <i class="fa-solid fa-sun"></i>';
+        }
+      }
+
+      if (toggleBtn) {
+        toggleBtn.addEventListener("click", () => {
+          const currentTheme =
+            document.documentElement.getAttribute("data-theme");
+          if (currentTheme === "dark") {
+            document.documentElement.removeAttribute("data-theme");
+            localStorage.setItem("littera_theme", "light");
+            toggleBtn.innerHTML = 'Dark mode <i class="fa-solid fa-moon"></i>';
+          } else {
+            document.documentElement.setAttribute("data-theme", "dark");
+            localStorage.setItem("littera_theme", "dark");
+            toggleBtn.innerHTML = 'Light mode <i class="fa-solid fa-sun"></i>';
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

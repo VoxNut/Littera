@@ -15,7 +15,7 @@ _model = None
 
 IMG_HEIGHT, IMG_WIDTH = 32, 128
 # Original CHARSET without space (model was trained on this)
-CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 ID_TO_CHAR = {i: c for i, c in enumerate(CHARSET)}
 
 
@@ -353,6 +353,11 @@ def _group_words_into_lines(word_boxes):
     return lines
 
 
+def home_view(request):
+    """Render site home page"""
+    return render(request, 'littera/home.html')
+
+
 def ocr_view(request):
     if request.method == 'POST':
         form = OCRForm(request.POST, request.FILES)
@@ -438,3 +443,9 @@ def ocr_view(request):
     else:
         form = OCRForm()
     return render(request, 'littera/ocr.html', {'form': form, 'detect_words': True})
+
+def home_view(request):
+    return render(request, 'littera/home.html')
+
+def login_view(request):
+    return render(request, 'littera/login.html')
