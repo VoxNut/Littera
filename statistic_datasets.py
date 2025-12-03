@@ -3,8 +3,9 @@ Analyze case distribution in MJSynth dataset
 """
 import os
 from pathlib import Path
+import matplotlib.pyplot as plt
 
-
+# CACHE_DIR = Path("/home/hieu/.cache/huggingface/datasets/c7d0c699152e5a310ad6b793bba5e302f28699ba")
 CACHE_DIR = Path("D:/huggingface_cache")
 CACHE_DIR.mkdir(exist_ok=True)
 os.environ['HF_HOME'] = str(CACHE_DIR)
@@ -96,6 +97,56 @@ def computeStatistics(ds, max_samples=None) -> Dict:
         "examples": dict(examples)
     }
 
+# flow chart to statistics case distribution as image
+def export_case_distribution_chart(stats: Dict, output_path="./imgs/case_distribution.png"):
+    """
+    Export a bar chart with single-row annotations: 'count (percent%)'
+    """
+    from pathlib import Path
+    import matplotlib.pyplot as plt
+
+    labels = list(stats.keys())
+    counts = [stats[k]["count"] for k in labels]
+    percents = [stats[k]["percent"] for k in labels]
+
+    display_labels = [(lbl.replace('_', ' ').title() if lbl else '') for lbl in labels]
+
+    plt.style.use('ggplot')
+    fig, ax = plt.subplots(figsize=(10, 6))
+    cmap = plt.get_cmap('tab10')
+    colors = [cmap(i % 10) for i in range(len(labels))]
+
+    bars = ax.bar(range(len(labels)), counts, color=colors, edgecolor='black', linewidth=0.7)
+
+    ax.set_xticks(range(len(labels)))
+    ax.set_xticklabels(display_labels, ha='right', fontsize=10)
+    ax.set_ylabel("Number of Samples")
+    ax.set_title("Case Distribution in MJSynth Dataset", fontsize=14, pad=12)
+
+    max_count = max(counts) if counts else 1
+    # Annotate as single row: "count (percent%)"
+    for rect, cnt, pct in zip(bars, counts, percents):
+        x = rect.get_x() + rect.get_width() / 2
+        y = rect.get_height()
+        ax.text(x, y + max_count * 0.03, f"{cnt:,} ({pct:.1f}%)", ha="center", va="bottom", fontsize=9)
+
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_linewidth(1.2)
+    ax.spines['bottom'].set_linewidth(1.0)
+
+    ax.yaxis.grid(True, linestyle='--', alpha=0.6)
+    ax.set_axisbelow(True)
+
+    out_dir = Path(output_path).parent
+    out_dir.mkdir(parents=True, exist_ok=True)
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=200, bbox_inches='tight', facecolor='white')
+    plt.close(fig)
+
+    print(f"📁 Chart saved to: {output_path}")
+
+
 
 def printStatistics(result: Dict):
     """Pretty print statistics"""
@@ -131,7 +182,7 @@ def printStatistics(result: Dict):
     print("=" * 70)
     
     stats = result['stats']
-    print_ascii_chart(stats, title=f"Case Distribution: {result['total']}")
+    export_case_distribution_chart(result_quick["stats"])
     if 'all_upper' in stats:
         upper_percent = stats['all_upper']['percent']
         if upper_percent > 70:
@@ -147,37 +198,6 @@ def printStatistics(result: Dict):
         else:
             print("✓  Dataset appears relatively balanced")
     
-    print("=" * 70)
-
-
-def print_ascii_chart(stats, title="Case Distribution"):
-    print("\n" + "=" * 70)
-    print(title)
-    print("=" * 70)
-
-    # Extract raw data
-    items = [(k, v["count"]) for k, v in stats.items()]
-
-    # Sort by count descending
-    items = sorted(items, key=lambda x: x[1], reverse=True)
-
-    max_label_len = max(len(k) for k, _ in items)
-    max_count = max(v for _, v in items)
-
-    # Width of the bar in characters
-    bar_max_width = 50
-
-    for key, count in items:
-        # Create bar length based on ratio
-        bar_len = int((count / max_count) * bar_max_width)
-        bar = "█" * bar_len
-
-        # Format label (capitalize, remove _)
-        label = key.replace("_", " ").capitalize()
-
-        # Print line
-        print(f"{label:<{max_label_len}} | {bar} {count}")
-
     print("=" * 70)
 
 def testClassifier():
@@ -265,3 +285,5 @@ if __name__ == '__main__':
     
     # Step 4: Summary
     print("\n[3/3] Analysis complete!")
+
+
