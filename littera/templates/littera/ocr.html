@@ -3,6 +3,7 @@
 {% block title %}Nhận diện chữ - Littera{% endblock %}
 
 {% block content %}
+{% if user.is_authenticated %}
 <div class="ocr-page">
   <div class="ocr-header">
     <h1><i class="fa-solid fa-image"></i> Nhận diện văn bản</h1>
@@ -57,6 +58,11 @@
       <strong>Lỗi:</strong> {{ error }}
     </div>
     {% endif %}
+        {% else %}
+        <p style="text-align:center; margin-top:20px;">
+            ⚠ Bạn cần đăng nhập để dùng tính năng.
+        </p>
+{% endif %}
   </div>
 </div>
 
