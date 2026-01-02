@@ -29,16 +29,16 @@ else:
 # Configuration
 print("\n=== Configuration ===")
 IMG_HEIGHT, IMG_WIDTH = 32, 128
-BATCH_SIZE = 32  # Reduced from 64 to 32 to fit in GPU memory
+BATCH_SIZE = 16  # Reduced from 64 to 32 to fit in GPU memory
 TIMESTEPS = 31
-EPOCHS = 20
+EPOCHS = 10
 NUM_SAMPLES = None
 
 # Setup paths - WSL can access Windows drives via /mnt/
-BASE_DIR = Path("/mnt/d/My WorkSpace/Littera")
+BASE_DIR = Path("/mnt/c/Users/ASUS/Littera")
 MODEL_SAVE_DIR = BASE_DIR / "models"
 MODEL_SAVE_DIR.mkdir(exist_ok=True)
-CACHE_DIR = Path("/mnt/d/huggingface_cache")
+CACHE_DIR = Path("/mnt/c/Users/ASUS/huggingface_cache")
 CACHE_DIR.mkdir(exist_ok=True)
 
 from datasets import load_dataset
